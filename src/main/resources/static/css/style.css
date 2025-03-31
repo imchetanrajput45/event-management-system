@@ -1,0 +1,25 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex-grow: 1;
+}
+
+/* ✅ Ensure both forms have the same width & spacing */
+.auth-container {
+    max-width: 400px; /* Same width for both login & register */
+    margin-top: 40px; /* Adds space from the top */
+    width: 100%; /* Ensures consistency */
+}
+
+.auth-container .form-control,
+.auth-container .form-select {
+    padding: 10px;
+    font-size: 16px;
+}

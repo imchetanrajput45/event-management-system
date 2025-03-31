@@ -1,0 +1,24 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" xmlns:th="http://www.thymeleaf.org">
+  <div class="container">
+    <a class="navbar-brand" href="/">Event Manager</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" th:classappend="${page == 'home' ? 'active' : ''}" href="/home">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:classappend="${page == 'events' ? 'active' : ''}" href="/events">Events</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:classappend="${page == 'dashboard' ? 'active' : ''}" href="/dashboard">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-outline-light ms-2" href="/profile">Profile</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Attendee Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css}">
+</head>
+<body>
+<div th:replace="fragments/navbar.html"></div>
+
+<div class="container mt-5">
+    <h2 class="text-center">Attendee Dashboard</h2>
+
+    <div class="card shadow p-4">
+        <h4>My Bookings</h4>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Ticket Type</th>
+                <th>Quantity</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="registration : ${myRegistrations}">
+                <td th:text="${registration.event.name}"></td>
+                <td th:text="${registration.event.date}"></td>
+                <td th:text="${registration.ticketType}"></td>
+                <td th:text="${registration.quantity}"></td>
+                <td>
+                    <a th:href="@{/events/cancel-booking/{id}(id=${registration.event.id})}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Are you sure you want to cancel?')">Cancel</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a th:href="@{/events}" class="btn btn-primary mt-3">Browse Events</a>
+</div>
+
+<div th:replace="fragments/footer.html"></div>
+<!-- Bootstrap JS -->
+<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Event List</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css}">
+</head>
+<body>
+
+<!-- Navbar -->
+<!--<div th:replace="fragments/navbar.html"></div>-->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" xmlns:th="http://www.thymeleaf.org">
+    <div class="container">
+        <a class="navbar-brand" href="/">Event Manager</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page == 'home' ? 'active' : ''}" href="/home">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page == 'events' ? 'active' : ''}" href="/events">Events</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${page == 'dashboard' ? 'active' : ''}" href="/dashboard">Dashboard</a>
+                </li>
+
+                <!-- ✅ Show Profile if User is Logged In, Otherwise Show Login -->
+                <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <a class="btn btn-outline-light ms-2" href="/profile">Profile</a>
+                    <a class="btn btn-danger ms-2" href="/logout">Logout</a>
+                </li>
+                <li class="nav-item" th:if="${!#authorization.expression('isAuthenticated()')}">
+                    <a class="btn btn-outline-light ms-2" href="/login">Login</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">All Events</h2>
+
+    <!-- ✅ Search Section -->
+    <form th:action="@{/events/search}" method="get" class="mb-3 d-flex">
+        <input type="text" name="query" th:value="${query}" class="form-control me-2" placeholder="Search events by name...">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <!-- ✅ Filter Buttons -->
+    <div class="mb-4">
+        <a th:href="@{/events/filter(type='upcoming')}" class="btn btn-outline-info me-2"
+           th:classappend="${filterType == 'upcoming' ? 'active' : ''}">Upcoming Events</a>
+        <a th:href="@{/events/filter(type='past')}" class="btn btn-outline-warning me-2"
+           th:classappend="${filterType == 'past' ? 'active' : ''}">Past Events</a>
+        <a th:href="@{/events/filter(type='all')}" class="btn btn-outline-dark"
+           th:classappend="${filterType == 'all' ? 'active' : ''}">All Events</a>
+    </div>
+
+    <!-- ✅ Create Event Button (For Admin & Organizer) -->
+    <div class="text-end mb-3">
+        <a th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_ORGANIZER'')')}"
+           th:href="@{/events/create}" class="btn btn-success">+ Create New Event</a>
+    </div>
+
+    <!-- ✅ Events Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Organizer</th>
+                <th>Actions</th>
+                <th>Register</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- ✅ If No Events Found -->
+            <tr th:if="${eventPage.content.isEmpty()}">
+                <td colspan="9" class="text-center text-muted">No events available.</td>
+            </tr>
+
+            <!-- ✅ Loop Through Events -->
+            <tr th:each="event : ${eventPage.content}">
+                <td th:text="${event.name}"></td>
+                <td th:text="${event.description}"></td>
+                <td th:text="${event.date}"></td>
+                <td th:text="${event.time}"></td>
+                <td th:text="${event.location}"></td>
+                <td th:text="${event.organizer?.username}"></td>
+
+                <!-- ✅ Only Admin & Organizer (own events) can Edit/Delete -->
+                <td>
+                    <th:block th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or #authentication.name == event.organizer?.username}">
+                        <a th:href="@{/events/edit/{id}(id=${event.id})}" class="btn btn-warning btn-sm">Edit</a>
+                        <a th:href="@{/events/delete/{id}(id=${event.id})}"
+                           onclick="return confirm('Are you sure?')" class="btn btn-danger btn-sm">Delete</a>
+                    </th:block>
+                    <a th:href="@{/events/{id}(id=${event.id})}" class="btn btn-info btn-sm">View Details</a>
+                </td>
+
+                <!-- ✅ Ticket Booking Column -->
+                <td>
+                    <th:block th:if="${event.organizer != null and #authentication.name != event.organizer.username}">
+                        <!-- ✅ If the user has already booked a ticket, show "Cancel Booking" -->
+                        <th:block th:each="registration : ${event.registrations}"
+                                  th:if="${registration.user.username == #authentication.name}">
+                            <a th:href="@{/events/cancel/{eventId}(eventId=${event.id})}"
+                               onclick="return confirm('Are you sure you want to cancel your ticket?')"
+                               class="btn btn-danger btn-sm">Cancel Booking</a>
+                        </th:block>
+
+                        <!-- ✅ If the user has NOT booked a ticket yet, show "Book Ticket" -->
+                        <th:block th:if="${event.registrations.![user.username].contains(#authentication.name) == false}">
+                            <a th:href="@{/events/book-page/{eventId}(eventId=${event.id})}" class="btn btn-success btn-sm">
+                                Book Ticket
+                            </a>
+                        </th:block>
+
+                    </th:block>
+                </td>
+
+
+
+                <!-- ✅ Show "Attended" Status -->
+                <td>
+                    <th:block th:each="registration : ${event.registrations}"
+                              th:if="${registration.user.username == #authentication.name}">
+                        <span class="text-success fw-bold" th:if="${registration.attended}">✔ Attended</span>
+                        <span class="text-danger fw-bold" th:unless="${registration.attended}">❌ Not Attended</span>
+                    </th:block>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ✅ Pagination -->
+    <nav th:if="${eventPage.totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${eventPage.number == 0} ? 'disabled'">
+                <a class="page-link" th:href="@{/events(page=${eventPage.number - 1})}">Previous</a>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">Page <span th:text="${eventPage.number + 1}"></span> of <span th:text="${eventPage.totalPages}"></span></span>
+            </li>
+            <li class="page-item" th:classappend="${eventPage.number + 1 == eventPage.totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/events(page=${eventPage.number + 1})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ✅ Export Features -->
+    <th:block th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_ORGANIZER'')')}">
+        <h3 class="mt-5">Export Attendance</h3>
+
+        <form action="/attendance/export/excel" method="get" class="mb-3">
+            <div class="input-group">
+                <label class="input-group-text">Select Event:</label>
+                <select name="eventId" class="form-select" required>
+                    <option value="" disabled selected>-- Select Event --</option>
+                    <th:block th:each="event : ${eventPage.content}">
+                        <option th:value="${event.id}" th:text="${event.name}"></option>
+                    </th:block>
+                </select>
+                <button type="submit" class="btn btn-success">📥 Export Excel</button>
+            </div>
+        </form>
+
+        <form action="/attendance/export/pdf" method="get">
+            <div class="input-group">
+                <label class="input-group-text">Select Event:</label>
+                <select name="eventId" class="form-select" required>
+                    <option value="" disabled selected>-- Select Event --</option>
+                    <th:block th:each="event : ${eventPage.content}">
+                        <option th:value="${event.id}" th:text="${event.name}"></option>
+                    </th:block>
+                </select>
+                <button type="submit" class="btn btn-danger">📥 Export PDF</button>
+            </div>
+        </form>
+    </th:block>
+</div>
+
+<!-- Footer -->
+<div th:replace="fragments/footer.html"></div>
+
+<!-- Bootstrap JS -->
+<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <title>Event List</title>-->
+<!--    <link rel="stylesheet" th:href="@{/css/style.css}">-->
+<!--</head>-->
+<!--<body>-->
+<!--<h2>All Events</h2>-->
+
+<!--&lt;!&ndash; ✅ Search Section &ndash;&gt;-->
+<!--<form th:action="@{/events/search}" method="get">-->
+<!--    <input type="text" name="query" th:value="${query}" placeholder="Search events by name..." />-->
+<!--    <button type="submit">Search</button>-->
+<!--</form>-->
+
+<!--<form th:action="@{/events/filter}" method="get">-->
+<!--    <button type="submit" name="type" value="upcoming"-->
+<!--            th:classappend="${filterType == 'upcoming' ? 'active' : ''}">-->
+<!--        Upcoming Events-->
+<!--    </button>-->
+<!--    <button type="submit" name="type" value="past"-->
+<!--            th:classappend="${filterType == 'past' ? 'active' : ''}">-->
+<!--        Past Events-->
+<!--    </button>-->
+<!--    <button type="submit" name="type" value="all"-->
+<!--            th:classappend="${filterType == 'all' ? 'active' : ''}">-->
+<!--        All Events-->
+<!--    </button>-->
+<!--</form>-->
+
+
+
+<!--&lt;!&ndash; ✅ Only Admin & Organizer can create events &ndash;&gt;-->
+<!--<th:block th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_ORGANIZER'')')}">-->
+<!--    <a th:href="@{/events/create}">Create New Event</a>-->
+<!--</th:block>-->
+
+<!--&lt;!&ndash; ✅ Events Table &ndash;&gt;-->
+<!--<table border="1">-->
+<!--    <thead>-->
+<!--    <tr>-->
+<!--        <th>Name</th>-->
+<!--        <th>Description</th>-->
+<!--        <th>Date</th>-->
+<!--        <th>Time</th>-->
+<!--        <th>Location</th>-->
+<!--        <th>Organizer</th>-->
+<!--        <th>Actions</th>-->
+<!--        <th>Register</th>-->
+<!--        <th>Status</th>-->
+<!--    </tr>-->
+<!--    </thead>-->
+<!--    <tbody>-->
+<!--    &lt;!&ndash; ✅ If No Events Found &ndash;&gt;-->
+<!--    <tr th:if="${eventPage.content.isEmpty()}">-->
+<!--        <td colspan="9">No events available.</td>-->
+<!--    </tr>-->
+
+<!--    &lt;!&ndash; ✅ Loop Through Events &ndash;&gt;-->
+<!--    <tr th:each="event : ${eventPage.content}">-->
+<!--        <td th:text="${event.name}"></td>-->
+<!--        <td th:text="${event.description}"></td>-->
+<!--        <td th:text="${event.date}"></td>-->
+<!--        <td th:text="${event.time}"></td>-->
+<!--        <td th:text="${event.location}"></td>-->
+<!--        <td th:text="${event.organizer?.username}"></td>-->
+
+<!--        &lt;!&ndash; ✅ Only Admin & Organizer (own events) can Edit/Delete &ndash;&gt;-->
+<!--        <td>-->
+<!--            <th:block th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or #authentication.name == event.organizer?.username}">-->
+<!--                <a th:href="@{/events/edit/{id}(id=${event.id})}">Edit</a> |-->
+<!--                <a th:href="@{/events/delete/{id}(id=${event.id})}"-->
+<!--                   onclick="return confirm('Are you sure?')">Delete</a> |-->
+<!--            </th:block>-->
+<!--            <a th:href="@{/events/{id}(id=${event.id})}">View Details</a>-->
+
+<!--        </td>-->
+
+<!--        &lt;!&ndash; ✅ Allow Registration for Others &ndash;&gt;-->
+<!--        <td>-->
+<!--            <th:block th:if="${event.organizer != null and #authentication.name != event.organizer.username}">-->
+<!--                <a th:href="@{/events/register/{eventId}(eventId=${event.id})}">Register</a>-->
+<!--            </th:block>-->
+<!--        </td>-->
+
+<!--        &lt;!&ndash; ✅ Show "Attended" Status &ndash;&gt;-->
+<!--        <td>-->
+<!--            <th:block th:each="registration : ${event.registrations}"-->
+<!--                      th:if="${registration.user.username == #authentication.name}">-->
+<!--                <span th:if="${registration.attended}">✔ Attended</span>-->
+<!--                <span th:unless="${registration.attended}">❌ Not Attended</span>-->
+<!--            </th:block>-->
+<!--        </td>-->
+<!--    </tr>-->
+<!--    </tbody>-->
+<!--</table>-->
+
+<!--&lt;!&ndash; ✅ Export Features &ndash;&gt;-->
+<!--<th:block th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_ORGANIZER'')')}">-->
+<!--    <h3>Export Attendance</h3>-->
+
+<!--    &lt;!&ndash; Export Attendance for a Selected Event &ndash;&gt;-->
+<!--    <form action="/attendance/export/excel" method="get">-->
+<!--        <label>Select Event:</label>-->
+<!--        <select name="eventId" required>-->
+<!--            <option value="" disabled selected>&#45;&#45; Select Event &#45;&#45;</option>-->
+<!--            <th:block th:each="event : ${eventPage.content}">-->
+<!--                <option th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or event.organizer.username == #authentication.name}"-->
+<!--                        th:value="${event.id}"-->
+<!--                        th:text="${event.name}">-->
+<!--                </option>-->
+<!--            </th:block>-->
+<!--        </select>-->
+<!--        <button type="submit">📥 Export Excel</button>-->
+<!--    </form>-->
+
+<!--    <form action="/attendance/export/pdf" method="get">-->
+<!--        <label>Select Event:</label>-->
+<!--        <select name="eventId" required>-->
+<!--            <option value="" disabled selected>&#45;&#45; Select Event &#45;&#45;</option>-->
+<!--            <th:block th:each="event : ${eventPage.content}">-->
+<!--                <option th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or event.organizer.username == #authentication.name}"-->
+<!--                        th:value="${event.id}"-->
+<!--                        th:text="${event.name}">-->
+<!--                </option>-->
+<!--            </th:block>-->
+<!--        </select>-->
+<!--        <button type="submit">📥 Export PDF</button>-->
+<!--    </form>-->
+
+<!--    &lt;!&ndash; ✅ Export All Listed Events &ndash;&gt;-->
+<!--    <h3>Export All Events</h3>-->
+<!--    <form action="/events/export/excel" method="get">-->
+<!--        <button type="submit">📥 Export All Events (Excel)</button>-->
+<!--    </form>-->
+<!--    <form action="/events/export/pdf" method="get">-->
+<!--        <button type="submit">📥 Export All Events (PDF)</button>-->
+<!--    </form>-->
+<!--</th:block>-->
+
+<!--&lt;!&ndash; ✅ Pagination &ndash;&gt;-->
+<!--<div>-->
+<!--    <th:block th:if="${eventPage.totalPages > 1}">-->
+<!--        <a th:if="${eventPage.number > 0}" th:href="@{/events(page=${eventPage.number - 1})}">Previous</a>-->
+<!--        Page <span th:text="${eventPage.number + 1}"></span> of <span th:text="${eventPage.totalPages}"></span>-->
+<!--        <a th:if="${eventPage.number + 1 < eventPage.totalPages}" th:href="@{/events(page=${eventPage.number + 1})}">Next</a>-->
+<!--    </th:block>-->
+<!--</div>-->
+
+<!--</body>-->
+<!--</html>-->
