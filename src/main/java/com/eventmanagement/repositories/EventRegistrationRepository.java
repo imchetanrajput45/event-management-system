@@ -13,8 +13,8 @@ import java.util.Optional;
 public interface EventRegistrationRepository extends JpaRepository<EventRegistration, Long> {
     Optional<EventRegistration> findByUserAndEvent(User user, Event event);
     List<EventRegistration> findByEvent(Event event);
-    boolean existsByEventAndUser(Event event, User user);  // ✅ Prevents duplicate registrations
-    // ✅ Fetch attended users for a specific event (but only if the event belongs to the organizer)
+    boolean existsByEventAndUser(Event event, User user);  // Prevents duplicate registrations
+    // Fetch attended users for a specific event (but only if the event belongs to the organizer)
     List<EventRegistration> findByEventIdAndEventOrganizerUsernameAndAttendedTrue(Long eventId, String username);
 
     @Query("SELECT SUM(er.quantity) FROM EventRegistration er WHERE er.event.id = :eventId")
