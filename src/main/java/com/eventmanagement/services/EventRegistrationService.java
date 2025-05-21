@@ -21,7 +21,7 @@ public class EventRegistrationService {
         this.eventRepository = eventRepository;
     }
 
-    // ✅ BOOK TICKET
+    //  BOOK TICKET
     @Transactional
     public void bookTicket(User user, Event event, String ticketType, int quantity) {
         if (event.getAvailableTickets() < quantity) {
@@ -32,7 +32,7 @@ public class EventRegistrationService {
             throw new RuntimeException("User already booked tickets for this event.");
         }
 
-        // ✅ Create new booking
+        //  Create new booking
         EventRegistration registration = new EventRegistration();
         registration.setUser(user);
         registration.setEvent(event);
@@ -40,13 +40,13 @@ public class EventRegistrationService {
         registration.setQuantity(quantity);
         registration.setStatus("CONFIRMED"); // Default status
 
-        // ✅ Save registration & update event ticket count
+        //  Save registration & update event ticket count
         eventRegistrationRepository.save(registration);
         event.setAvailableTickets(event.getAvailableTickets() - quantity);
         eventRepository.save(event);
     }
 
-    // ✅ CANCEL TICKET (Refunds available tickets)
+    //  CANCEL TICKET (Refunds available tickets)
     @Transactional
     public void cancelBooking(User user, Event event) {
         Optional<EventRegistration> registration = eventRegistrationRepository.findByUserAndEvent(user, event);
@@ -60,7 +60,7 @@ public class EventRegistrationService {
         }
     }
 
-    // ✅ CHECK IF USER IS ALREADY REGISTERED
+    //  CHECK IF USER IS ALREADY REGISTERED
     public boolean isUserRegistered(User user, Event event) {
         return eventRegistrationRepository.findByUserAndEvent(user, event).isPresent();
     }
@@ -98,7 +98,7 @@ public class EventRegistrationService {
 //        eventRegistrationRepository.save(registration);
 //    }
 //
-//    // ✅ NEW: Unregister User
+//    //  NEW: Unregister User
 //    public void unregisterUserFromEvent(User user, Event event) {
 //        Optional<EventRegistration> registration = eventRegistrationRepository.findByUserAndEvent(user, event);
 //        registration.ifPresent(eventRegistrationRepository::delete);
