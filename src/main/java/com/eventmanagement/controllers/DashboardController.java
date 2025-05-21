@@ -42,7 +42,7 @@ public class DashboardController {
             return "redirect:/login";
         }
 
-        if (user.getRole() == Role.ADMIN) {  // ✅ Compare with Enum
+        if (user.getRole() == Role.ADMIN) {  //  Compare with Enum
             System.out.println("this is ADMIN");
             return adminDashboard(model);
         } else if (user.getRole() == Role.ORGANIZER) {
