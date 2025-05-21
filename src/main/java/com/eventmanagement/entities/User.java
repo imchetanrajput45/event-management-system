@@ -27,7 +27,7 @@ public class User {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    private Role role; // ✅ Role Enum
+    private Role role; // Role Enum
 
     @Column(nullable = true)
     private String profileImage; // Stores image filename
