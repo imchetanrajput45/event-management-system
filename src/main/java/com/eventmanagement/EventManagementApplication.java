@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableScheduling // ✅ Enables Spring's built-in task scheduler
+@EnableScheduling //  Enables Spring's built-in task scheduler
 public class EventManagementApplication {
 
 	public static void main(String[] args) {
