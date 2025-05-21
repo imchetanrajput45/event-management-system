@@ -29,19 +29,19 @@ public class UserService {
         }
 
         if (!file.isEmpty()) {
-            // ✅ Use absolute path for proper storage
+            //  Use absolute path for proper storage
             String uploadDir = System.getProperty("user.dir") + "/uploads/";
             File uploadFolder = new File(uploadDir);
             if (!uploadFolder.exists()) {
                 uploadFolder.mkdirs(); // Create the directory if it doesn't exist
             }
 
-            // ✅ Sanitize file name (remove spaces)
+            //  Sanitize file name (remove spaces)
             String filename = username + "_" + file.getOriginalFilename().replaceAll(" ", "_");
             File destination = new File(uploadDir + filename);
             file.transferTo(destination);
 
-            // ✅ Save only the relative path in the database
+            //  Save only the relative path in the database
             user.setProfileImage(filename);
         }
 
