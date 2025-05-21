@@ -24,15 +24,15 @@ public class EventRegistration {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    private boolean attended; // ✅ Track attendance
-    private LocalDateTime registrationDate; // ✅ Registration date
+    private boolean attended; // Track attendance
+    private LocalDateTime registrationDate; //  Registration date
 
-    private String ticketType; // ✅ VIP, General, etc.
-    private int quantity; // ✅ Number of tickets booked
-    private String status; // ✅ CONFIRMED, PENDING, CANCELLED
+    private String ticketType; //  VIP, General, etc.
+    private int quantity; //  Number of tickets booked
+    private String status; //  CONFIRMED, PENDING, CANCELLED
 
     @PrePersist
     protected void onRegister() {
-        this.registrationDate = LocalDateTime.now(); // ✅ Set default registration date
+        this.registrationDate = LocalDateTime.now(); //  Set default registration date
     }
 }
