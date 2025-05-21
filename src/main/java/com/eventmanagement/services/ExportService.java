@@ -30,7 +30,7 @@ public class ExportService {
         this.registrationRepository = registrationRepository;
     }
 
-    // ✅ Export Events to Excel
+    //  Export Events to Excel
     public ByteArrayInputStream exportEventsToExcel() throws IOException {
         List<Event> events = eventRepository.findAll();
 
@@ -41,7 +41,7 @@ public class ExportService {
         String[] columns = {"ID", "Name", "Date", "Time", "Location", "Organizer"};
         for (int i = 0; i < columns.length; i++) {
             Cell cell = headerRow.createCell(i);
-            cell.setCellValue(columns[i]);  // ✅ Apache POI Cell
+            cell.setCellValue(columns[i]);  //  Apache POI Cell
         }
 
         int rowIdx = 1;
@@ -61,7 +61,7 @@ public class ExportService {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
-    // ✅ Export Events to PDF
+    //  Export Events to PDF
     public ByteArrayInputStream exportEventsToPDF() {
         List<Event> events = eventRepository.findAll();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -75,7 +75,7 @@ public class ExportService {
 
             Table table = new Table(6);
 
-            // ✅ Use Paragraph for headers (iText 7 does not support direct Cell instantiation)
+            //  Use Paragraph for headers (iText 7 does not support direct Cell instantiation)
             table.addHeaderCell(new Paragraph("ID"));
             table.addHeaderCell(new Paragraph("Name"));
             table.addHeaderCell(new Paragraph("Date"));
