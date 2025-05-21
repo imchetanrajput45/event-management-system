@@ -17,10 +17,10 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 1000) // ✅ Increased size
+    @Column(length = 1000) //  Increased size
     private String name;
 
-    @Column(length = 1000) // ✅ Increased size
+    @Column(length = 1000) // Increased size
 
     private String description;
 
@@ -35,8 +35,8 @@ public class Event {
     private User organizer;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventRegistration> registrations; // ✅ Stores registered users
+    private List<EventRegistration> registrations; //  Stores registered users
 
 
-    private int availableTickets; // ✅ Remaining tickets
+    private int availableTickets; // Remaining tickets
 }
