@@ -34,10 +34,10 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("chetan1542003@gmail.com"); // ✅ Use a verified sender email
+            helper.setFrom("chetan1542003@gmail.com"); // Use a verified sender email
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(body, true); // ✅ Enable HTML content
+            helper.setText(body, true); //Enable HTML content
 
             mailSender.send(message);
             System.out.println("Email sent successfully!");
@@ -48,13 +48,13 @@ public class EmailService {
     }
 
 
-    // ✅ Scheduler to send reminders for events happening tomorrow
+    // Scheduler to send reminders for events happening tomorrow
     @Scheduled(cron = "0 0 9 * * ?") // Runs every day at 9 AM
     public void sendEventReminders() {
         System.out.println("Running scheduled task: Sending event reminders...");
 
-        String tomorrow = LocalDate.now().plusDays(1).toString(); // 📌 Get tomorrow's date as a String
-        List<Event> upcomingEvents = eventRepository.findByDate(tomorrow); // 📌 Find events happening tomorrow
+        String tomorrow = LocalDate.now().plusDays(1).toString(); //  Get tomorrow's date as a String
+        List<Event> upcomingEvents = eventRepository.findByDate(tomorrow); //  Find events happening tomorrow
 
         for (Event event : upcomingEvents) {
             List<EventRegistration> registrations = registrationRepository.findByEvent(event);
