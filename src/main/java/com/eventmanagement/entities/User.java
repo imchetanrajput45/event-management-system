@@ -34,5 +34,5 @@ public class User {
 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventRegistration> registrations; // ✅ Allows users to see their registrations
+    private List<EventRegistration> registrations; // Allows users to see their registrations
 }
