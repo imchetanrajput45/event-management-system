@@ -26,19 +26,19 @@ public class AttendanceService {
         this.eventRegistrationRepository = eventRegistrationRepository;
     }
 
-    // ✅ Fetch event details with registrations
+    //  Fetch event details with registrations
     public Optional<Event> getEventWithRegistrations(Long eventId) {
         return eventRepository.findById(eventId);
     }
 
-    // ✅ Mark attendance for an event
+    //  Mark attendance for an event
     public boolean markAttendance(Long eventId, List<Long> attendedUsers, UserDetails userDetails) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isPresent()) {
             Event event = eventOptional.get();
             User loggedInUser = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
 
-            // ✅ Check if the logged-in user is the event organizer or an admin
+            // Check if the logged-in user is the event organizer or an admin
             if (loggedInUser.getRole().equals(Role.ADMIN) || (event.getOrganizer() != null && event.getOrganizer().getUsername().equals(userDetails.getUsername()))) {
                 List<EventRegistration> registrations = event.getRegistrations();
 
@@ -49,6 +49,6 @@ public class AttendanceService {
                 return true; // ✅ Attendance updated successfully
             }
         }
-        return false; // ❌ Event not found or unauthorized
+        return false; //  Event not found or unauthorized
     }
 }
